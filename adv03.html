@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cadet Band App</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f5f5f5; }
+    .tabs { display: flex; flex-wrap: wrap; background: #333; color: white; }
+    .tab { flex: 1 1 33%; padding: 10px; text-align: center; cursor: pointer; border-right: 1px solid #444; }
+    .tab:last-child { border-right: none; }
+    .tab.active { background: #555; }
+    .content { padding: 20px; display: none; }
+    .content.active { display: block; }
+    .card { background: white; padding: 15px; margin-bottom: 10px; border-radius: 8px; box-shadow: 0 0 5px rgba(0,0,0,0.1); }
+    .progress { height: 10px; background: #ddd; border-radius: 5px; overflow: hidden; }
+    .progress div { height: 10px; }
+    .bg-green { background: green; }
+    .bg-yellow { background: goldenrod; }
+    .bg-red { background: red; }
+    .input, select, textarea { width: 100%; padding: 8px; margin-top: 5px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; }
+    .button { background: #333; color: white; padding: 10px 15px; border: none; cursor: pointer; border-radius: 5px; }
+    .checkbox { margin-right: 5px; }
+    .bar-label { display: flex; justify-content: space-between; }
+    .bar { height: 20px; margin: 5px 0; background: lightblue; border-radius: 5px; }
+    .vacancy { color: red; font-weight: bold; }
+
+    @media (max-width: 600px) {
+      .tabs { flex-direction: column; }
+      .tab { flex: 1 1 auto; font-size: 14px; padding: 8px; border-bottom: 1px solid #444; border-right: none; }
+      .bar-label { font-size: 14px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('attendance')">Attendance</div>
+    <div class="tab" onclick="switchTab('events')">Events</div>
+    <div class="tab" onclick="switchTab('instruments')">Instruments</div>
+    <div class="tab" onclick="switchTab('add-event')">Add Event</div>
+    <div class="tab" onclick="switchTab('add-member')">Add Member</div>
+    <div class="tab" onclick="switchTab('music')">Music</div>
+  </div>
+  <div class="content active" id="attendance"></div>
+  <div class="content" id="events"></div>
+  <div class="content" id="instruments"></div>
+  <div class="content" id="add-event"></div>
+  <div class="content" id="add-member"></div>
+  <div class="content" id="music"></div>
+
+  <script>
+    let members = [];
+    let events = [];
+    let musicCount = {};
+    const instrumentsNeeded = {
+      "Mess": 1, "Tenor Saxophone": 1, "Clarinet": 4, "Trumpet": 5, "Alto Saxophone": 2,
+      "Tuba": 2, "Euphonium": 2, "Side Drum": 4, "Bass Drum": 1
+    };
+    const songList = ["Viruwo", "Marune", "Hela Jatika", "Minisa", "Duke of York", "Irak Payana", "Dakuna Nagenahira", "Shrini"];
+    const rankOrder = { 'Sajon': 1, 'Senior': 2, 'CPL': 3, 'L/CPL': 4, 'Cadet': 5 };
+
+    function saveData() {
+      localStorage.setItem('members', JSON.stringify(members));
+      localStorage.setItem('events', JSON.stringify(events));
+      localStorage.setItem('musicCount', JSON.stringify(musicCount));
+    }
+
+    function loadData() {
+      members = JSON.parse(localStorage.getItem('members')) || [];
+      events = JSON.parse(localStorage.getItem('events')) || [];
+      musicCount = JSON.parse(localStorage.getItem('musicCount')) || {};
+    }
+
+    function sortMembersByRank() {
+      members.sort((a, b) => rankOrder[a.rank] - rankOrder[b.rank]);
+    }
+
+    function switchTab(id) {
+      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+      document.querySelectorAll('.content').forEach(tab => tab.classList.remove('active'));
+      document.querySelector(`.tab[onclick="switchTab('${id}')"]`).classList.add('active');
+      document.getElementById(id).classList.add('active');
+      render();
+    }
+
+    function render() {
+      sortMembersByRank();
+      renderAttendance();
+      renderEvents();
+      renderInstruments();
+      renderMusic();
+    }
+
+    function renderAttendance() {
+      const container = document.getElementById("attendance");
+      container.innerHTML = members.map(m => {
+        const total = events.length - m.joinedIndex;
+        const percentage = total ? Math.round((m.attended / total) * 100) : 0;
+        const color = percentage >= 80 ? "bg-green" : percentage >= 50 ? "bg-yellow" : "bg-red";
+        return `<div class="card">
+          <div><strong>${m.name}</strong> (${m.rank})</div>
+          <div>Instrument: ${m.instrument}</div>
+          <div class="progress"><div class="${color}" style="width: ${percentage}%"></div></div>
+          <div>${percentage}% (${m.attended}/${total})</div>
+        </div>`;
+      }).join('');
+    }
+
+    function renderEvents() {
+      const container = document.getElementById("events");
+      container.innerHTML = events.map(e => `<div class="card">
+        <div><strong>${e.name}</strong></div>
+        <div>Date: ${e.date}</div>
+        <div>Location: ${e.location}</div>
+        <div>Music: ${e.music.join(", ")}</div>
+        <div>Notes: ${e.notes}</div>
+        <div>Players: ${e.attendance.join(", ")}</div>
+      </div>`).join('');
+    }
+
+    function renderInstruments() {
+      const container = document.getElementById("instruments");
+      container.innerHTML = "";
+      Object.keys(instrumentsNeeded).forEach(inst => {
+        const assigned = members.filter(m => m.instrument === inst);
+        const shortage = instrumentsNeeded[inst] - assigned.length;
+        const list = assigned.map(m => `<li>${m.name} (${m.rank})</li>`).join('');
+        container.innerHTML += `<div class="card"><strong>${inst}</strong>
+          <ul>${list}</ul>
+          ${shortage > 0 ? `<div class="vacancy">${shortage} vacancy${shortage > 1 ? 'ies' : ''}</div>` : ''}
+        </div>`;
+      });
+    }
+
+    function renderMusic() {
+      const container = document.getElementById("music");
+      container.innerHTML = songList.map(song => {
+        const count = musicCount[song] || 0;
+        return `<div class="bar-label"><span>${song}</span><span>${count}</span></div>
+        <div class="bar" style="width:${count * 20}px"></div>`;
+      }).join('');
+    }
+
+    function setupAddMemberForm() {
+      const container = document.getElementById("add-member");
+      container.innerHTML = `<div class="card">
+        <input class="input" id="member-name" placeholder="Name" />
+        <select class="input" id="member-instrument">
+          ${Object.keys(instrumentsNeeded).map(i => `<option value="${i}">${i}</option>`).join('')}
+        </select>
+        <input class="input" id="member-contact" placeholder="Contact No." />
+        <input class="input" id="member-address" placeholder="Address" />
+        <select class="input" id="member-grade">
+          ${[6,7,8,9,10,11,12,13].map(g => `<option value="${g}">Grade ${g}</option>`).join('')}
+        </select>
+        <select class="input" id="member-rank">
+          <option value="Cadet">Cadet</option>
+          <option value="L/CPL">L/CPL</option>
+          <option value="CPL">CPL</option>
+          <option value="Senior">Senior</option>
+          <option value="Sajon">Sajon</option>
+        </select>
+        <button class="button" onclick="addMember()">Add Member</button>
+      </div>`;
+    }
+
+    function setupAddEventForm() {
+      const container = document.getElementById("add-event");
+      container.innerHTML = `<div class="card">
+        <input class="input" id="event-name" placeholder="Event Name" />
+        <input class="input" type="date" id="event-date" />
+        <input class="input" id="event-location" placeholder="Location" />
+        <label>Select Music Played</label><br/>
+        ${songList.map(song => `<label><input type="checkbox" class="checkbox" value="${song}" onchange="toggleMusic(this)"> ${song}</label><br/>`).join('')}
+        <textarea class="input" id="event-notes" placeholder="Notes"></textarea>
+        <label>Select attendees</label><br/>
+        ${members.map((m, i) => `<label><input type="checkbox" class="checkbox" value="${m.name}" onchange="toggleAttendance(this)"> ${m.name}</label><br/>`).join('')}
+        <button class="button" onclick="addEvent()">Add Event</button>
+      </div>`;
+    }
+
+    let newEvent = { name: "", date: "", location: "", music: [], notes: "", attendance: [] };
+
+    function toggleMusic(checkbox) {
+      if (checkbox.checked) newEvent.music.push(checkbox.value);
+      else newEvent.music = newEvent.music.filter(m => m !== checkbox.value);
+    }
+
+    function toggleAttendance(checkbox) {
+      if (checkbox.checked) newEvent.attendance.push(checkbox.value);
+      else newEvent.attendance = newEvent.attendance.filter(n => n !== checkbox.value);
+    }
+
+    function addEvent() {
+      newEvent.name = document.getElementById("event-name").value;
+      newEvent.date = document.getElementById("event-date").value;
+      newEvent.location = document.getElementById("event-location").value;
+      newEvent.notes = document.getElementById("event-notes").value;
+
+      members = members.map(m => ({
+        ...m,
+        attended: newEvent.attendance.includes(m.name) ? m.attended + 1 : m.attended,
+        total: m.joinedIndex <= events.length ? m.total + 1 : m.total
+      }));
+      newEvent.music.forEach(m => musicCount[m] = (musicCount[m] || 0) + 1);
+      events.push({...newEvent});
+      newEvent = { name: "", date: "", location: "", music: [], notes: "", attendance: [] };
+      setupAddEventForm();
+      saveData();
+      render();
+    }
+
+    function addMember() {
+      const newMember = {
+        name: document.getElementById("member-name").value,
+        instrument: document.getElementById("member-instrument").value,
+        contact: document.getElementById("member-contact").value,
+        address: document.getElementById("member-address").value,
+        grade: document.getElementById("member-grade").value,
+        rank: document.getElementById("member-rank").value,
+        attended: 0,
+        total: 0,
+        joinedIndex: events.length
+      };
+      members.push(newMember);
+      setupAddMemberForm();
+      setupAddEventForm();
+      saveData();
+      render();
+    }
+
+    loadData();
+    setupAddMemberForm();
+    setupAddEventForm();
+    render();
+  </script>
+</body>
+</html>
