@@ -24,7 +24,6 @@
     .bar-label { display: flex; justify-content: space-between; }
     .bar { height: 20px; margin: 5px 0; background: lightblue; border-radius: 5px; }
     .vacancy { color: red; font-weight: bold; }
-
     @media (max-width: 600px) {
       .tabs { flex-direction: column; }
       .tab { flex: 1 1 auto; font-size: 14px; padding: 8px; border-bottom: 1px solid #444; border-right: none; }
@@ -49,7 +48,23 @@
   <div class="content" id="music"></div>
 
   <script>
-    let members = [];
+    let members = [
+      { name: "Chesandu Prabashwara", instrument: "Mess", rank: "Sajon", attended: 0, total: 0, joinedIndex: 0 },
+      { name: "Shobahn Kovidtha", instrument: "Tenor Saxophone", rank: "CPL", attended: 0, total: 0, joinedIndex: 0 },
+      { name: "Savithu Liyanagunawardhana", instrument: "Clarinet", rank: "CPL", attended: 0, total: 0, joinedIndex: 0 },
+      { name: "Nisith Lamahewa", instrument: "Trumpet", rank: "L/CPL", attended: 0, total: 0, joinedIndex: 0 },
+      { name: "Chenindu Chenul", instrument: "Alto Saxophone", rank: "L/CPL", attended: 0, total: 0, joinedIndex: 0 },
+      { name: "Pasun", instrument: "Tuba", rank: "L/CPL", attended: 0, total: 0, joinedIndex: 0 },
+      { name: "Ashen", instrument: "Euphonium", rank: "Cadet", attended: 0, total: 0, joinedIndex: 0 },
+      { name: "Kanishka", instrument: "Euphonium", rank: "Cadet", attended: 0, total: 0, joinedIndex: 0 },
+      { name: "Ihansa", instrument: "Trumpet", rank: "Cadet", attended: 0, total: 0, joinedIndex: 0 },
+      { name: "Jupiter", instrument: "Alto Saxophone", rank: "Cadet", attended: 0, total: 0, joinedIndex: 0 },
+      { name: "Satern", instrument: "Alto Saxophone", rank: "Cadet", attended: 0, total: 0, joinedIndex: 0 },
+      { name: "Amandith", instrument: "Trumpet", rank: "Cadet", attended: 0, total: 0, joinedIndex: 0 },
+      { name: "Sudda", instrument: "Side Drum", rank: "Cadet", attended: 0, total: 0, joinedIndex: 0 },
+      { name: "Ranitha", instrument: "Side Drum", rank: "Cadet", attended: 0, total: 0, joinedIndex: 0 }
+    ];
+
     let events = [];
     let musicCount = {};
     const instrumentsNeeded = {
@@ -66,7 +81,7 @@
     }
 
     function loadData() {
-      members = JSON.parse(localStorage.getItem('members')) || [];
+      members = JSON.parse(localStorage.getItem('members')) || members;
       events = JSON.parse(localStorage.getItem('events')) || [];
       musicCount = JSON.parse(localStorage.getItem('musicCount')) || {};
     }
