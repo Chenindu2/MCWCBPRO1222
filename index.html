@@ -2,33 +2,156 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cadet Band App</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Band Manager</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f5f5f5; }
-    .tabs { display: flex; flex-wrap: wrap; background: #333; color: white; }
-    .tab { flex: 1 1 33%; padding: 10px; text-align: center; cursor: pointer; border-right: 1px solid #444; }
-    .tab:last-child { border-right: none; }
-    .tab.active { background: #555; }
-    .content { padding: 20px; display: none; }
-    .content.active { display: block; }
-    .card { background: white; padding: 15px; margin-bottom: 10px; border-radius: 8px; box-shadow: 0 0 5px rgba(0,0,0,0.1); }
-    .progress { height: 10px; background: #ddd; border-radius: 5px; overflow: hidden; }
-    .progress div { height: 10px; }
-    .bg-green { background: green; }
-    .bg-yellow { background: goldenrod; }
-    .bg-red { background: red; }
-    .input, select, textarea { width: 100%; padding: 8px; margin-top: 5px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; }
-    .button { background: #333; color: white; padding: 10px 15px; border: none; cursor: pointer; border-radius: 5px; }
-    .checkbox { margin-right: 5px; }
-    .bar-label { display: flex; justify-content: space-between; }
-    .bar { height: 20px; margin: 5px 0; background: lightblue; border-radius: 5px; }
-    .vacancy { color: red; font-weight: bold; }
-    @media (max-width: 600px) {
-      .tabs { flex-direction: column; }
-      .tab { flex: 1 1 auto; font-size: 14px; padding: 8px; border-bottom: 1px solid #444; border-right: none; }
-      .bar-label { font-size: 14px; }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background-color: #111;
+      color: gold;
     }
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-around;
+      background: #222;
+      padding: 1em 0;
+    }
+    .tab {
+      cursor: pointer;
+      padding: 0.5em 1em;
+      border-bottom: 3px solid transparent;
+      transition: 0.3s;
+      font-weight: bold;
+      font-size: 1.1em;
+      background: none;
+      color: gold;
+    }
+    .tab:hover, .tab.active {
+      border-bottom: 3px solid gold;
+      color: #fff;
+      background: #2a2a2a;
+    }
+    .content {
+      display: none;
+      padding: 1em;
+      animation: fade 0.5s ease-in-out;
+    }
+    .content.active {
+      display: block;
+    }
+    @keyframes fade {
+      from {opacity: 0;}
+      to {opacity: 1;}
+    }
+    .card {
+      background: #222;
+      margin: 1em 0;
+      padding: 1em;
+      border-radius: 1em;
+      box-shadow: 0 0 10px #000;
+      position: relative;
+    }
+    .input, select, textarea {
+      width: 100%;
+      padding: 0.5em;
+      margin: 0.3em 0;
+      border-radius: 5px;
+      border: none;
+      font-size: 1em;
+      background: #181818;
+      color: gold;
+      box-sizing: border-box;
+    }
+    .input:focus, select:focus, textarea:focus {
+      outline: 2px solid gold;
+    }
+    .button {
+      background: gold;
+      border: none;
+      color: #111;
+      padding: 0.5em 1.5em;
+      border-radius: 10px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 1em;
+      transition: 0.3s;
+      font-size: 1em;
+    }
+    .button:hover {
+      background: #f7d700;
+    }
+    .mini-btn {
+      background: #444;
+      color: gold;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.9em;
+      padding: 0.2em 0.8em;
+      margin-left: 0.6em;
+      margin-bottom: 0.7em;
+      margin-top: 0.2em;
+      float: right;
+    }
+    .mini-btn:hover { background: #333; color: #fff; }
+    .progress {
+      height: 15px;
+      background: #333;
+      border-radius: 10px;
+      margin: 5px 0;
+      overflow: hidden;
+    }
+    .bg-green { background: limegreen; height: 100%; transition: width 0.3s; }
+    .bg-yellow { background: gold; height: 100%; transition: width 0.3s; }
+    .bg-red { background: red; height: 100%; transition: width 0.3s; }
+    .vacancy {
+      color: red;
+      margin-top: 0.5em;
+      font-weight: bold;
+    }
+    .edit-btn {
+      float: right;
+      background: gold;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      padding: 0.2em 0.7em;
+      font-size: 0.9em;
+      color: #111;
+      margin-top: -0.2em;
+      margin-right: -0.4em;
+    }
+    .edit-btn:hover { background: #f7d700; }
+    .checkbox { margin-right: 5px; transform: scale(1.2); }
+    .bar-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 3px;
+    }
+    .bar {
+      height: 14px;
+      background: #555;
+      border-radius: 5px;
+      margin: 2px 0 10px 0;
+      position: relative;
+      overflow: hidden;
+    }
+    .bar-fill {
+      background: gold;
+      height: 100%;
+      border-radius: 5px;
+      transition: width 0.3s;
+      position: absolute;
+      top: 0; left: 0;
+    }
+    @media (max-width: 700px) {
+      .tabs { flex-direction: column; }
+      .tab { width: 100%; text-align: left; }
+    }
+    .hidden { display: none; }
   </style>
 </head>
 <body>
@@ -36,218 +159,427 @@
     <div class="tab active" onclick="switchTab('attendance')">Attendance</div>
     <div class="tab" onclick="switchTab('events')">Events</div>
     <div class="tab" onclick="switchTab('instruments')">Instruments</div>
-    <div class="tab" onclick="switchTab('add-event')">Add Event</div>
-    <div class="tab" onclick="switchTab('add-member')">Add Member</div>
     <div class="tab" onclick="switchTab('music')">Music</div>
+    <div class="tab" onclick="switchTab('player-profiles')">PlayerP</div>
+    <div class="tab" onclick="switchTab('competition')">Competition Attendance</div>
+    <div class="tab" onclick="switchTab('add-member')">Add Member</div>
+    <div class="tab" onclick="switchTab('add-event')">Add Event</div>
   </div>
-  <div class="content active" id="attendance"></div>
-  <div class="content" id="events"></div>
-  <div class="content" id="instruments"></div>
-  <div class="content" id="add-event"></div>
-  <div class="content" id="add-member"></div>
-  <div class="content" id="music"></div>
+
+  <div id="attendance" class="content active"></div>
+  <div id="events" class="content"></div>
+  <div id="instruments" class="content"></div>
+  <div id="music" class="content"></div>
+  <div id="player-profiles" class="content"></div>
+  <div id="competition" class="content"></div>
+  <div id="add-member" class="content"></div>
+  <div id="add-event" class="content"></div>
 
   <script>
-    let members = [
-      { name: "Chesandu Prabashwara", instrument: "Mess", rank: "Sajon", attended: 0, total: 0, joinedIndex: 0 },
-      { name: "Shobahn Kovidtha", instrument: "Tenor Saxophone", rank: "CPL", attended: 0, total: 0, joinedIndex: 0 },
-      { name: "Savithu Liyanagunawardhana", instrument: "Clarinet", rank: "CPL", attended: 0, total: 0, joinedIndex: 0 },
-      { name: "Nisith Lamahewa", instrument: "Trumpet", rank: "L/CPL", attended: 0, total: 0, joinedIndex: 0 },
-      { name: "Chenindu Chenul", instrument: "Alto Saxophone", rank: "L/CPL", attended: 0, total: 0, joinedIndex: 0 },
-      { name: "Pasun", instrument: "Tuba", rank: "L/CPL", attended: 0, total: 0, joinedIndex: 0 },
-      { name: "Ashen", instrument: "Euphonium", rank: "Cadet", attended: 0, total: 0, joinedIndex: 0 },
-      { name: "Kanishka", instrument: "Euphonium", rank: "Cadet", attended: 0, total: 0, joinedIndex: 0 },
-      { name: "Ihansa", instrument: "Trumpet", rank: "Cadet", attended: 0, total: 0, joinedIndex: 0 },
-      { name: "Jupiter", instrument: "Alto Saxophone", rank: "Cadet", attended: 0, total: 0, joinedIndex: 0 },
-      { name: "Satern", instrument: "Alto Saxophone", rank: "Cadet", attended: 0, total: 0, joinedIndex: 0 },
-      { name: "Amandith", instrument: "Trumpet", rank: "Cadet", attended: 0, total: 0, joinedIndex: 0 },
-      { name: "Sudda", instrument: "Side Drum", rank: "Cadet", attended: 0, total: 0, joinedIndex: 0 },
-      { name: "Ranitha", instrument: "Side Drum", rank: "Cadet", attended: 0, total: 0, joinedIndex: 0 }
+    // --- Data Structures ---
+    const instrumentSlots = {
+      "Mess": 1, "Tenor Saxophone": 1, "Clarinet": 4, "Trumpet": 5,
+      "Alto Saxophone": 2, "Tuba": 2, "Euphonium": 2, "Side Drum": 4, "Bass Drum": 1
+    };
+
+    const rankOrder = { "Sajon": 1, "Senior": 2, "CPL": 3, "L/CPL": 4, "Cadet": 5 };
+    const songList = [
+      "Viruwo", "Marune", "Hela Jatika", "Minisa", "Duke of York",
+      "Irak Payana", "Dakuna Nagenahira", "Shrini"
     ];
 
+    // --- Local Storage Load/Save ---
+    let members = [];
     let events = [];
     let musicCount = {};
-    const instrumentsNeeded = {
-      "Mess": 1, "Tenor Saxophone": 1, "Clarinet": 4, "Trumpet": 5, "Alto Saxophone": 2,
-      "Tuba": 2, "Euphonium": 2, "Side Drum": 4, "Bass Drum": 1
-    };
-    const songList = ["Viruwo", "Marune", "Hela Jatika", "Minisa", "Duke of York", "Irak Payana", "Dakuna Nagenahira", "Shrini"];
-    const rankOrder = { 'Sajon': 1, 'Senior': 2, 'CPL': 3, 'L/CPL': 4, 'Cadet': 5 };
+    let competitions = [];
 
     function saveData() {
-      localStorage.setItem('members', JSON.stringify(members));
-      localStorage.setItem('events', JSON.stringify(events));
-      localStorage.setItem('musicCount', JSON.stringify(musicCount));
+      localStorage.setItem("members", JSON.stringify(members));
+      localStorage.setItem("events", JSON.stringify(events));
+      localStorage.setItem("musicCount", JSON.stringify(musicCount));
+      localStorage.setItem("competitions", JSON.stringify(competitions));
     }
 
     function loadData() {
-      members = JSON.parse(localStorage.getItem('members')) || members;
-      events = JSON.parse(localStorage.getItem('events')) || [];
-      musicCount = JSON.parse(localStorage.getItem('musicCount')) || {};
+      members = JSON.parse(localStorage.getItem("members") || "[]");
+      events = JSON.parse(localStorage.getItem("events") || "[]");
+      musicCount = JSON.parse(localStorage.getItem("musicCount") || "{}");
+      competitions = JSON.parse(localStorage.getItem("competitions") || "[]");
     }
 
-    function sortMembersByRank() {
-      members.sort((a, b) => rankOrder[a.rank] - rankOrder[b.rank]);
+    // --- Tab Switch Logic ---
+    const tabs = document.querySelectorAll('.tab');
+    const contents = document.querySelectorAll('.content');
+    function switchTab(tabId) {
+      tabs.forEach(t => t.classList.remove('active'));
+      contents.forEach(c => c.classList.remove('active'));
+      document.querySelector(`[onclick="switchTab('${tabId}')"]`).classList.add('active');
+      document.getElementById(tabId).classList.add('active');
+      // Optionally rerender on tab switch:
+      if (tabId === "player-profiles") renderProfiles();
+      if (tabId === "attendance") renderAttendance();
+      if (tabId === "instruments") renderInstruments();
+      if (tabId === "music") renderMusic();
+      if (tabId === "events") renderEvents();
+      if (tabId === "competition") renderCompetitionForm();
+      if (tabId === "add-member") renderAddMemberForm();
+      if (tabId === "add-event") renderAddEventForm();
     }
 
-    function switchTab(id) {
-      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-      document.querySelectorAll('.content').forEach(tab => tab.classList.remove('active'));
-      document.querySelector(`.tab[onclick="switchTab('${id}')"]`).classList.add('active');
-      document.getElementById(id).classList.add('active');
-      render();
-    }
-
-    function render() {
-      sortMembersByRank();
-      renderAttendance();
-      renderEvents();
-      renderInstruments();
-      renderMusic();
-    }
-
+    // --- Attendance Render ---
     function renderAttendance() {
       const container = document.getElementById("attendance");
-      container.innerHTML = members.map(m => {
-        const total = events.length - m.joinedIndex;
-        const percentage = total ? Math.round((m.attended / total) * 100) : 0;
-        const color = percentage >= 80 ? "bg-green" : percentage >= 50 ? "bg-yellow" : "bg-red";
-        return `<div class="card">
-          <div><strong>${m.name}</strong> (${m.rank})</div>
-          <div>Instrument: ${m.instrument}</div>
-          <div class="progress"><div class="${color}" style="width: ${percentage}%"></div></div>
-          <div>${percentage}% (${m.attended}/${total})</div>
-        </div>`;
-      }).join('');
-    }
-
-    function renderEvents() {
-      const container = document.getElementById("events");
-      container.innerHTML = events.map(e => `<div class="card">
-        <div><strong>${e.name}</strong></div>
-        <div>Date: ${e.date}</div>
-        <div>Location: ${e.location}</div>
-        <div>Music: ${e.music.join(", ")}</div>
-        <div>Notes: ${e.notes}</div>
-        <div>Players: ${e.attendance.join(", ")}</div>
-      </div>`).join('');
-    }
-
-    function renderInstruments() {
-      const container = document.getElementById("instruments");
       container.innerHTML = "";
-      Object.keys(instrumentsNeeded).forEach(inst => {
-        const assigned = members.filter(m => m.instrument === inst);
-        const shortage = instrumentsNeeded[inst] - assigned.length;
-        const list = assigned.map(m => `<li>${m.name} (${m.rank})</li>`).join('');
-        container.innerHTML += `<div class="card"><strong>${inst}</strong>
-          <ul>${list}</ul>
-          ${shortage > 0 ? `<div class="vacancy">${shortage} vacancy${shortage > 1 ? 'ies' : ''}</div>` : ''}
+      members.sort((a, b) => rankOrder[a.rank] - rankOrder[b.rank]);
+      members.forEach(m => {
+        const mainPct = m.total ? Math.round((m.attended / m.total) * 100) : 0;
+        const compPct = m.compTotal ? Math.round((m.compAttended / m.compTotal) * 100) : 0;
+        const bar1 = mainPct >= 75 ? "bg-green" : mainPct >= 50 ? "bg-yellow" : "bg-red";
+        const bar2 = compPct >= 75 ? "bg-green" : compPct >= 50 ? "bg-yellow" : "bg-red";
+        container.innerHTML += `
+          <div class="card">
+            <b>${m.name}</b> (${m.rank})<br>
+            Instrument: ${m.instrument}<br>
+            <div class="progress"><div class="${bar1}" style="width:${mainPct}%"></div></div>
+            ${mainPct}% (${m.attended}/${m.total})
+            <div class="progress"><div class="${bar2}" style="width:${compPct}%"></div></div>
+            Comp: ${compPct}% (${m.compAttended||0}/${m.compTotal||0})
+          </div>`;
+      });
+    }
+
+    // --- Player Profiles ---
+    function renderProfiles() {
+      const box = document.getElementById("player-profiles");
+      box.innerHTML = "";
+      members.sort((a, b) => rankOrder[a.rank] - rankOrder[b.rank]);
+      members.forEach((m, i) => {
+        box.innerHTML += `<div class="card">
+          <b>${m.name}</b>
+          <button class="edit-btn" onclick="editMember(${i})">Edit</button><br>
+          Grade: ${m.grade}, A.School: ${m.aschool}<br>
+          Rank: ${m.rank}, Instrument: ${m.instrument}<br>
+          Contact: ${m.contact}<br>
+          Address: ${m.address}
         </div>`;
       });
     }
 
+    function editMember(index) {
+      const m = members[index];
+      // Edit all fields
+      const newName = prompt("Edit Full Name", m.name);
+      if (newName !== null && newName.trim()) m.name = newName.trim();
+      const newGrade = prompt("Edit Grade (6-13)", m.grade);
+      if (newGrade !== null && newGrade.trim()) m.grade = newGrade.trim();
+      const newASchool = prompt("Edit A.School (A.School/Other)", m.aschool);
+      if (newASchool !== null && newASchool.trim()) m.aschool = newASchool.trim();
+      const newRank = prompt("Edit Rank (Cadet/L/CPL/CPL/Senior/Sajon)", m.rank);
+      if (newRank !== null && newRank.trim()) m.rank = newRank.trim();
+      const newContact = prompt("Edit Contact Number", m.contact);
+      if (newContact !== null && newContact.trim()) m.contact = newContact.trim();
+      const newAddress = prompt("Edit Address", m.address);
+      if (newAddress !== null && newAddress.trim()) m.address = newAddress.trim();
+      const newInstrument = prompt("Edit Instrument", m.instrument);
+      if (newInstrument !== null && newInstrument.trim()) m.instrument = newInstrument.trim();
+      saveData();
+      renderProfiles();
+      renderAttendance();
+      renderInstruments();
+    }
+
+    // --- Add Member Form ---
+    function renderAddMemberForm() {
+      const form = document.getElementById("add-member");
+      form.innerHTML = `
+        <div class="card">
+          <h3>Add New Member</h3>
+          <input id="first-name" class="input" placeholder="First Name" autocomplete="off">
+          <input id="last-name" class="input" placeholder="Last Name" autocomplete="off">
+          <select id="grade" class="input">
+            <option value="">Grade</option>
+            ${[6,7,8,9,10,11,12,13].map(g => `<option>${g}</option>`).join('')}
+          </select>
+          <select id="aschool" class="input">
+            <option>A.School</option>
+            <option>Other</option>
+          </select>
+          <select id="rank" class="input">
+            <option>Cadet</option>
+            <option>L/CPL</option>
+            <option>CPL</option>
+            <option>Senior</option>
+            <option>Sajon</option>
+          </select>
+          <input id="contact" class="input" placeholder="Contact Number" autocomplete="off">
+          <input id="address" class="input" placeholder="Address" autocomplete="off">
+          <select id="instrument" class="input">
+            ${Object.keys(instrumentSlots).map(i => `<option>${i}</option>`).join('')}
+          </select>
+          <button class="button" onclick="addMember()">Add</button>
+        </div>
+      `;
+    }
+
+    function addMember() {
+      const member = {
+        name: (document.getElementById("first-name").value + " " + document.getElementById("last-name").value).trim(),
+        grade: document.getElementById("grade").value,
+        aschool: document.getElementById("aschool").value,
+        rank: document.getElementById("rank").value,
+        contact: document.getElementById("contact").value,
+        address: document.getElementById("address").value,
+        instrument: document.getElementById("instrument").value,
+        attended: 0, total: 0, compAttended: 0, compTotal: 0
+      };
+      if (!member.name.trim() || !member.grade || !member.rank) {
+        alert("Please fill all required fields.");
+        return;
+      }
+      members.push(member);
+      saveData();
+      renderAttendance();
+      renderProfiles();
+      renderInstruments();
+      renderAddMemberForm();
+      renderCompetitionForm();
+      renderAddEventForm();
+      switchTab("attendance");
+    }
+
+    // --- Instruments Render ---
+    function renderInstruments() {
+      const container = document.getElementById("instruments");
+      container.innerHTML = "";
+      Object.keys(instrumentSlots).forEach(inst => {
+        const assigned = members.filter(m => m.instrument === inst);
+        const shortage = instrumentSlots[inst] - assigned.length;
+        const list = assigned.map(m => `<li>${m.name} (${m.rank})</li>`).join('');
+        container.innerHTML += `
+          <div class="card">
+            <strong>${inst}</strong>
+            <ul>${list}</ul>
+            ${shortage > 0 ? `<div class="vacancy">${shortage} vacancy${shortage > 1 ? 'ies' : ''}</div>` : ''}
+          </div>`;
+      });
+    }
+
+    // --- Music Render ---
     function renderMusic() {
       const container = document.getElementById("music");
       container.innerHTML = songList.map(song => {
         const count = musicCount[song] || 0;
-        return `<div class="bar-label"><span>${song}</span><span>${count}</span></div>
-        <div class="bar" style="width:${count * 20}px"></div>`;
+        return `
+          <div class="bar-label">
+            <span>${song}</span>
+            <span>${count}</span>
+          </div>
+          <div class="bar"><div class="bar-fill" style="width:${Math.min(count*20,200)}px"></div></div>
+        `;
       }).join('');
     }
 
-    function setupAddMemberForm() {
-      const container = document.getElementById("add-member");
-      container.innerHTML = `<div class="card">
-        <input class="input" id="member-name" placeholder="Name" />
-        <select class="input" id="member-instrument">
-          ${Object.keys(instrumentsNeeded).map(i => `<option value="${i}">${i}</option>`).join('')}
-        </select>
-        <input class="input" id="member-contact" placeholder="Contact No." />
-        <input class="input" id="member-address" placeholder="Address" />
-        <select class="input" id="member-grade">
-          ${[6,7,8,9,10,11,12,13].map(g => `<option value="${g}">Grade ${g}</option>`).join('')}
-        </select>
-        <select class="input" id="member-rank">
-          <option value="Cadet">Cadet</option>
-          <option value="L/CPL">L/CPL</option>
-          <option value="CPL">CPL</option>
-          <option value="Senior">Senior</option>
-          <option value="Sajon">Sajon</option>
-        </select>
-        <button class="button" onclick="addMember()">Add Member</button>
-      </div>`;
+    // --- Events Render ---
+    function renderEvents() {
+      const container = document.getElementById("events");
+      if (!events.length) {
+        container.innerHTML = `<div class="card">No events added yet.</div>`;
+        return;
+      }
+      container.innerHTML = events.map(e => `
+        <div class="card">
+          <div><strong>${e.name}</strong></div>
+          <div>Date: ${e.date}</div>
+          <div>Location: ${e.location}</div>
+          <div>Music: ${e.music.join(", ")}</div>
+          <div>Notes: ${e.notes}</div>
+          <div>Players: ${e.attendance.join(", ")}</div>
+        </div>
+      `).join('');
     }
 
-    function setupAddEventForm() {
-      const container = document.getElementById("add-event");
-      container.innerHTML = `<div class="card">
-        <input class="input" id="event-name" placeholder="Event Name" />
-        <input class="input" type="date" id="event-date" />
-        <input class="input" id="event-location" placeholder="Location" />
-        <label>Select Music Played</label><br/>
-        ${songList.map(song => `<label><input type="checkbox" class="checkbox" value="${song}" onchange="toggleMusic(this)"> ${song}</label><br/>`).join('')}
-        <textarea class="input" id="event-notes" placeholder="Notes"></textarea>
-        <label>Select attendees</label><br/>
-        ${members.map((m, i) => `<label><input type="checkbox" class="checkbox" value="${m.name}" onchange="toggleAttendance(this)"> ${m.name}</label><br/>`).join('')}
-        <button class="button" onclick="addEvent()">Add Event</button>
-      </div>`;
-    }
-
+    // --- Add Event Form ---
     let newEvent = { name: "", date: "", location: "", music: [], notes: "", attendance: [] };
 
+    function renderAddEventForm() {
+      const container = document.getElementById("add-event");
+      newEvent = { name: "", date: "", location: "", music: [], notes: "", attendance: [] };
+      container.innerHTML = `
+        <div class="card">
+          <h3>Add Event</h3>
+          <input class="input" id="event-name" placeholder="Event Name" autocomplete="off"/>
+          <input class="input" type="date" id="event-date"/>
+          <input class="input" id="event-location" placeholder="Location" autocomplete="off"/>
+          <label>Select Music Played</label><br/>
+          ${songList.map(song => `<label><input type="checkbox" class="checkbox" value="${song}" onchange="toggleMusic(this)"> ${song}</label><br/>`).join('')}
+          <textarea class="input" id="event-notes" placeholder="Notes"></textarea>
+          <label><b>Select attendees</b></label>
+          <button class="mini-btn" type="button" onclick="selectAllEventAttendees()">Select All</button><br/>
+          ${members.map((m, i) => `<label><input type="checkbox" class="checkbox" id="a${i}" value="${m.name}" onchange="toggleAttendance(this)"> ${m.name}</label><br/>`).join('')}
+          <button class="button" onclick="addEventProcess()">Add Event</button>
+        </div>
+      `;
+    }
+
     function toggleMusic(checkbox) {
-      if (checkbox.checked) newEvent.music.push(checkbox.value);
-      else newEvent.music = newEvent.music.filter(m => m !== checkbox.value);
+      if (checkbox.checked) {
+        if (!newEvent.music.includes(checkbox.value)) newEvent.music.push(checkbox.value);
+      } else {
+        newEvent.music = newEvent.music.filter(m => m !== checkbox.value);
+      }
     }
 
     function toggleAttendance(checkbox) {
-      if (checkbox.checked) newEvent.attendance.push(checkbox.value);
-      else newEvent.attendance = newEvent.attendance.filter(n => n !== checkbox.value);
+      if (checkbox.checked) {
+        if (!newEvent.attendance.includes(checkbox.value)) newEvent.attendance.push(checkbox.value);
+      } else {
+        newEvent.attendance = newEvent.attendance.filter(n => n !== checkbox.value);
+      }
     }
 
-    function addEvent() {
+    function selectAllEventAttendees() {
+      members.forEach((_, i) => {
+        const cb = document.getElementById("a" + i);
+        if (cb && !cb.checked) {
+          cb.checked = true;
+          toggleAttendance(cb);
+        }
+      });
+    }
+
+    function addEventProcess() {
       newEvent.name = document.getElementById("event-name").value;
       newEvent.date = document.getElementById("event-date").value;
       newEvent.location = document.getElementById("event-location").value;
       newEvent.notes = document.getElementById("event-notes").value;
-
-      members = members.map(m => ({
-        ...m,
-        attended: newEvent.attendance.includes(m.name) ? m.attended + 1 : m.attended,
-        total: m.joinedIndex <= events.length ? m.total + 1 : m.total
-      }));
+      if (!newEvent.name.trim() || !newEvent.date) {
+        alert("Please provide event name and date.");
+        return;
+      }
+      // Update attendance counts per member
+      members = members.map(m => {
+        if (newEvent.attendance.includes(m.name)) {
+          m.attended = (m.attended || 0) + 1;
+        }
+        m.total = (m.total || 0) + 1;
+        return m;
+      });
+      // Update music stats
       newEvent.music.forEach(m => musicCount[m] = (musicCount[m] || 0) + 1);
-      events.push({...newEvent});
-      newEvent = { name: "", date: "", location: "", music: [], notes: "", attendance: [] };
-      setupAddEventForm();
+      // Save event
+      events.push({...newEvent, attendance: [...newEvent.attendance]});
       saveData();
-      render();
+      renderAttendance();
+      renderProfiles();
+      renderMusic();
+      renderEvents();
+      renderAddMemberForm();
+      renderAddEventForm();
+      renderInstruments();
+      renderCompetitionForm();
+      switchTab("events");
     }
 
-    function addMember() {
-      const newMember = {
-        name: document.getElementById("member-name").value,
-        instrument: document.getElementById("member-instrument").value,
-        contact: document.getElementById("member-contact").value,
-        address: document.getElementById("member-address").value,
-        grade: document.getElementById("member-grade").value,
-        rank: document.getElementById("member-rank").value,
-        attended: 0,
-        total: 0,
-        joinedIndex: events.length
-      };
-      members.push(newMember);
-      setupAddMemberForm();
-      setupAddEventForm();
-      saveData();
-      render();
+    // --- Competition Attendance ---
+    function renderCompetitionForm() {
+      const comp = document.getElementById("competition");
+      comp.innerHTML = `<div class="card">
+        <h3>Competition Attendance</h3>
+        <input id="practice-name" class="input" placeholder="Practice Name" autocomplete="off">
+        <input id="practice-date" type="date" class="input">
+        <input id="note" class="input" placeholder="Note" autocomplete="off">
+        <button class="mini-btn" onclick="selectAllComp()">Select All</button><br>
+        ${members.map((m, i) => `<label><input type="checkbox" id="c${i}"> ${m.name}</label><br>`).join('')}
+        <button class="button" onclick="submitComp()">Submit</button>
+      </div>
+      <div class="card hidden" id="comp-history"></div>
+      `;
+      renderCompetitionHistory();
     }
 
-    loadData();
-    setupAddMemberForm();
-    setupAddEventForm();
-    render();
+    function selectAllComp() {
+      members.forEach((_, i) => document.getElementById("c" + i).checked = true);
+    }
+
+    function submitComp() {
+      const name = document.getElementById("practice-name").value.trim();
+      const date = document.getElementById("practice-date").value;
+      const note = document.getElementById("note").value.trim();
+      if (!name || !date) {
+        alert("Please fill the practice name and date.");
+        return;
+      }
+      let attendance = [];
+      members.forEach((m, i) => {
+        if (document.getElementById("c" + i).checked) attendance.push(m.name);
+      });
+      // update competition fields for members
+      members.forEach((m, i) => {
+        m.compTotal = (m.compTotal || 0) + 1;
+        if (attendance.includes(m.name)) m.compAttended = (m.compAttended || 0) + 1;
+      });
+      competitions.push({
+        name, date, note, attendance: [...attendance]
+      });
+      saveData();
+      renderAttendance();
+      renderProfiles();
+      renderCompetitionForm();
+      renderAddMemberForm();
+      renderAddEventForm();
+      renderInstruments();
+      renderMusic();
+      alert("Competition attendance recorded!");
+    }
+
+    function renderCompetitionHistory() {
+      const history = document.getElementById("comp-history");
+      if (!competitions.length) {
+        history.classList.add("hidden");
+        return;
+      }
+      history.classList.remove("hidden");
+      history.innerHTML = "<h4>Past Competition Attendances</h4>";
+      competitions.slice().reverse().forEach(e => {
+        history.innerHTML += `
+          <div>
+            <b>${e.name}</b> (${e.date})<br>
+            Note: ${e.note}<br>
+            Attendees: ${e.attendance.join(", ")}
+            <hr style="border:0;border-bottom:1px dashed #aaa;">
+          </div>
+        `;
+      });
+    }
+
+    // --- Initial Data Setup & Render ---
+    function ensureData() {
+      loadData();
+      // If fresh (no members) - optionally seed or leave blank
+      if (!members.length) {
+        // Optionally seed with example data here
+      }
+    }
+    ensureData();
+    renderAttendance();
+    renderAddMemberForm();
+    renderProfiles();
+    renderCompetitionForm();
+    renderInstruments();
+    renderMusic();
+    renderEvents();
+    renderAddEventForm();
+
+    // --- Expose for event handlers ---
+    window.toggleMusic = toggleMusic;
+    window.toggleAttendance = toggleAttendance;
+    window.selectAllEventAttendees = selectAllEventAttendees;
+    window.addEventProcess = addEventProcess;
+    window.editMember = editMember;
+    window.selectAllComp = selectAllComp;
+    window.submitComp = submitComp;
+
   </script>
 </body>
 </html>
