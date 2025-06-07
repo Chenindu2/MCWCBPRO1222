@@ -11,6 +11,20 @@
       background-color: #111;
       color: gold;
     }
+    .header-logo {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #181818;
+      padding: 0.8em 0 0.5em 0;
+      font-size: 2.3em;
+      font-weight: 900;
+      letter-spacing: 0.20em;
+      color: gold;
+      text-shadow: 2px 2px 8px #000, 0 0 6px gold;
+      user-select: none;
+    }
     .tabs {
       display: flex;
       flex-wrap: wrap;
@@ -147,14 +161,160 @@
       position: absolute;
       top: 0; left: 0;
     }
+    .competition-parent-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      background: #333;
+      border-radius: 7px 7px 0 0;
+      overflow: hidden;
+      margin-bottom: 0.7em;
+    }
+    .competition-parent-tab {
+      flex: 1 1 0;
+      text-align: center;
+      padding: 0.7em 0.3em;
+      cursor: pointer;
+      background: #222;
+      color: gold;
+      font-size: 1.1em;
+      font-weight: bold;
+      border: none;
+    }
+    .competition-parent-tab.active {
+      background: gold;
+      color: #222;
+      border-bottom: 4px solid #f7d700;
+    }
+    .competition-progress-bar {
+      height: 18px;
+      background: #222;
+      border-radius: 7px;
+      margin: 7px 0 5px 0;
+      position: relative;
+      overflow: hidden;
+      border: 2px solid gold;
+    }
+    .competition-bar-fill {
+      height: 100%;
+      border-radius: 7px;
+      background: gold;
+      transition: width 0.3s;
+    }
+    .competition-bar-fill.orange {
+      background: orange;
+      animation: blinkOrange 1s step-end infinite alternate;
+    }
+    .competition-bar-fill.red-outline {
+      background: transparent;
+      border: 2px solid red;
+      box-sizing: border-box;
+    }
+    .competition-bar-fill.blink {
+      animation: blinkGold 1s step-end infinite alternate;
+    }
+    @keyframes blinkGold {
+      0% { background: gold; }
+      100% { background: #fff700; }
+    }
+    @keyframes blinkOrange {
+      0% { background: orange; }
+      100% { background: #ffc04d; }
+    }
+    .competition-dropdown {
+      background: #222;
+      color: gold;
+      border: 1px solid gold;
+      border-radius: 4px;
+      margin: 3px 0 8px 0;
+      padding: 6px 8px;
+      width: 100%;
+    }
+    .competition-dropdown-btn {
+      background: none;
+      border: none;
+      color: gold;
+      cursor: pointer;
+      font-weight: bold;
+      text-decoration: underline;
+      margin-top: 0.5em;
+    }
+    .competition-details-edit-btn {
+      background: #444;
+      color: gold;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      padding: 0.2em 0.7em;
+      font-size: 0.9em;
+      float: right;
+      margin-top: -0.2em;
+      margin-right: 0;
+    }
+    .competition-details-edit-btn:hover { background: #333; color: #fff; }
+    .backup-btn {
+      position: fixed;
+      bottom: 18px;
+      right: 18px;
+      background: gold;
+      color: #111;
+      border: none;
+      border-radius: 12px;
+      font-weight: bold;
+      font-size: 1.1em;
+      padding: 0.6em 1.4em;
+      cursor: pointer;
+      z-index: 1000;
+      box-shadow: 0 5px 22px #000;
+      transition: 0.2s;
+    }
+    .backup-btn:hover {
+      background: #f7d700;
+      color: #111;
+      transform: scale(1.06);
+    }
+    .backup-modal-bg {
+      position: fixed;
+      left:0; top:0; width:100vw; height:100vh;
+      background: rgba(0,0,0,0.68);
+      z-index: 1100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .backup-modal {
+      background: #222;
+      color: gold;
+      border-radius: 12px;
+      box-shadow: 0 0 30px #000;
+      padding: 2em;
+      min-width: 340px;
+      max-width: 95vw;
+    }
+    .backup-modal textarea {
+      width: 100%;
+      min-height: 140px;
+      background: #181818;
+      color: gold;
+      border: 1px solid gold;
+      border-radius: 7px;
+      font-size: 1em;
+      margin-bottom: 1em;
+    }
+    .backup-modal .button {
+      margin-top: 0;
+      margin-right: 0.5em;
+    }
     @media (max-width: 700px) {
+      .header-logo { font-size: 1.5em; }
       .tabs { flex-direction: column; }
       .tab { width: 100%; text-align: left; }
+      .backup-modal { min-width: unset; }
     }
     .hidden { display: none; }
   </style>
 </head>
 <body>
+  <div class="header-logo">MCWCB</div>
   <div class="tabs">
     <div class="tab active" onclick="switchTab('attendance')">Attendance</div>
     <div class="tab" onclick="switchTab('events')">Events</div>
@@ -164,6 +324,7 @@
     <div class="tab" onclick="switchTab('competition')">Competition Attendance</div>
     <div class="tab" onclick="switchTab('add-member')">Add Member</div>
     <div class="tab" onclick="switchTab('add-event')">Add Event</div>
+    <div class="tab" onclick="switchTab('competition-main')">Competition</div>
   </div>
 
   <div id="attendance" class="content active"></div>
@@ -174,13 +335,29 @@
   <div id="competition" class="content"></div>
   <div id="add-member" class="content"></div>
   <div id="add-event" class="content"></div>
+  <div id="competition-main" class="content"></div>
+
+  <button class="backup-btn" onclick="showBackupModal()">Backup</button>
+  <div id="backup-modal-bg" class="backup-modal-bg hidden">
+    <div class="backup-modal">
+      <h2>Backup Data</h2>
+      <textarea id="backup-data-area" readonly></textarea>
+      <button class="button" onclick="copyBackupData()">Copy</button>
+      <button class="button" onclick="closeBackupModal()">Close</button>
+      <div style="font-size:0.95em;color:#ffd700; margin-top:0.5em;">
+        Copy the above data and save in a file or email. <br>
+        To restore, paste the backup back into your browser console as:<br>
+        <span style="color:#fff;background:#181818;padding:2px 6px;border-radius:4px;">restoreBackup('...')</span>
+      </div>
+    </div>
+  </div>
 
   <script>
-    // --- Data Structures ---
+    // ------------ Band/General Data ------------
     const instrumentSlots = {
       "Mess": 1, "Tenor Saxophone": 1, "Clarinet": 4, "Trumpet": 5,
       "Alto Saxophone": 2, "Tuba": 2, "Euphonium": 2, "Side Drum": 4, "Bass Drum": 1,
-      "Piccalo": 1 // <-- Added Piccalo here
+      "Piccalo": 1
     };
 
     const rankOrder = { "Sajon": 1, "Senior": 2, "CPL": 3, "L/CPL": 4, "Cadet": 5 };
@@ -189,17 +366,41 @@
       "Irak Payana", "Dakuna Nagenahira", "Shrini"
     ];
 
-    // --- Local Storage Load/Save ---
     let members = [];
     let events = [];
     let musicCount = {};
     let competitions = [];
 
+    // ------------ Competition Section Data ------------
+    let compPlayers = [];
+    let compAttendances = []; // [{date, time, attendance: [names]}]
+    let compPerformances = []; // [{name, m1, m2}]
+    let compMusicFinished = []; // [{name, music1, music2}]
+    let compPracticeRecords = []; // [{date, time, attendance: [names]}]
+
+    // ------------ Competition Section Save/Load ------------
+    function saveCompetitionData() {
+      localStorage.setItem('compPlayers', JSON.stringify(compPlayers));
+      localStorage.setItem('compAttendances', JSON.stringify(compAttendances));
+      localStorage.setItem('compPerformances', JSON.stringify(compPerformances));
+      localStorage.setItem('compMusicFinished', JSON.stringify(compMusicFinished));
+      localStorage.setItem('compPracticeRecords', JSON.stringify(compPracticeRecords));
+    }
+    function loadCompetitionData() {
+      compPlayers = JSON.parse(localStorage.getItem('compPlayers') || '[]');
+      compAttendances = JSON.parse(localStorage.getItem('compAttendances') || '[]');
+      compPerformances = JSON.parse(localStorage.getItem('compPerformances') || '[]');
+      compMusicFinished = JSON.parse(localStorage.getItem('compMusicFinished') || '[]');
+      compPracticeRecords = JSON.parse(localStorage.getItem('compPracticeRecords') || '[]');
+    }
+
+    // ------------ General Save/Load ------------
     function saveData() {
       localStorage.setItem("members", JSON.stringify(members));
       localStorage.setItem("events", JSON.stringify(events));
       localStorage.setItem("musicCount", JSON.stringify(musicCount));
       localStorage.setItem("competitions", JSON.stringify(competitions));
+      saveCompetitionData();
     }
 
     function loadData() {
@@ -207,9 +408,10 @@
       events = JSON.parse(localStorage.getItem("events") || "[]");
       musicCount = JSON.parse(localStorage.getItem("musicCount") || "{}");
       competitions = JSON.parse(localStorage.getItem("competitions") || "[]");
+      loadCompetitionData();
     }
 
-    // --- Tab Switch Logic ---
+    // ------------ Main Tab Switch ------------
     const tabs = document.querySelectorAll('.tab');
     const contents = document.querySelectorAll('.content');
     function switchTab(tabId) {
@@ -226,9 +428,229 @@
       if (tabId === "competition") renderCompetitionForm();
       if (tabId === "add-member") renderAddMemberForm();
       if (tabId === "add-event") renderAddEventForm();
+      if (tabId === "competition-main") renderCompetitionMain();
     }
 
-    // --- Attendance Render ---
+    // ------------ Competition Tab Subtabs Logic ------------
+    const compTabList = [
+      {id: "comp-add", label: "+ 👦🏻"},
+      {id: "comp-details", label: "👥Details"},
+      {id: "comp-attendance", label: "Com.Attendance"},
+      {id: "comp-attendpct", label: "Σ Attend%"},
+      {id: "comp-music", label: "♬ Finished"},
+      {id: "comp-perf", label: "Σ Performance"}
+    ];
+    let activeCompTab = "comp-add";
+    function switchCompTab(id) {
+      activeCompTab = id;
+      renderCompetitionMain();
+    }
+
+    // ------------ Competition Tab Content ------------
+    function renderCompetitionMain() {
+      let container = document.getElementById('competition-main');
+      let html = `
+        <div class="competition-parent-tabs">
+          ${compTabList.map(tab => `<button class="competition-parent-tab${activeCompTab===tab.id?' active':''}" onclick="switchCompTab('${tab.id}')">${tab.label}</button>`).join('')}
+        </div>
+        <div id="competition-subcontent"></div>
+      `;
+      container.innerHTML = html;
+      setTimeout(renderCompetitionSubContent, 0);
+    }
+
+    // ------------ Competition Subtab Content Renderers ------------
+    function renderCompetitionSubContent() {
+      let el = document.getElementById('competition-subcontent');
+      if (activeCompTab === "comp-add") {
+        el.innerHTML = `
+          <div class="card">
+            <h3>Add Competition Player</h3>
+            <input class="input" id="comp-name" placeholder="Name" autocomplete="off">
+            <input class="input" id="comp-instrument" placeholder="Instrument" autocomplete="off">
+            <input class="input" id="comp-contact" placeholder="Contact Number" autocomplete="off">
+            <select class="input" id="comp-grade">
+              <option value="">Grade</option>
+              ${[6,7,8,9,10,11,12,13].map(g => `<option>Grade ${g}</option>`).join('')}
+              <option value="After School">After School</option>
+            </select>
+            <button class="button" onclick="addCompPlayer()">Add</button>
+          </div>
+        `;
+      }
+      else if (activeCompTab === "comp-details") {
+        el.innerHTML = compPlayers.length ? compPlayers.map((m,i) => `
+          <div class="card">
+            <b>${m.name}</b>
+            <button class="competition-details-edit-btn" onclick="editCompPlayer(${i})">Edit</button><br>
+            Instrument: ${m.instrument}<br>
+            Contact: ${m.contact}<br>
+            Grade: ${m.grade}
+          </div>`).join('') : `<div class="card">No competition players yet.</div>`;
+      }
+      else if (activeCompTab === "comp-attendance") {
+        if (!compPlayers.length) {
+          el.innerHTML = `<div class="card">Add players first.</div>`;
+        } else {
+          el.innerHTML = `
+            <div class="card">
+              <h3>Competition Attendance</h3>
+              <input class="input" id="comp-practice-date" type="date">
+              <select class="input" id="comp-practice-time">
+                <option value="">Time</option>
+                <option>Morning</option>
+                <option>Evening</option>
+                <option>Night</option>
+              </select>
+              <button class="mini-btn" onclick="selectAllCompAttendance()">Select All</button><br>
+              ${compPlayers.map((m,i) => `<label><input type="checkbox" class="checkbox" id="comp-att-${i}"> ${m.name}</label><br>`).join('')}
+              <button class="button" onclick="submitCompAttendance()">Submit Attendance</button>
+            </div>
+          `;
+        }
+      }
+      else if (activeCompTab === "comp-attendpct") {
+        if (!compPracticeRecords.length) {
+          el.innerHTML = `<div class="card">No competition attendance records yet.</div>`;
+        } else {
+          // percent per player
+          let allPractices = compPracticeRecords.length;
+          let playerCounts = {};
+          compPlayers.forEach(m => playerCounts[m.name]=0);
+          compPracticeRecords.forEach(rec => {
+            rec.attendance.forEach(nm => playerCounts[nm]=(playerCounts[nm]||0)+1);
+          });
+          el.innerHTML = compPlayers.map(m => {
+            let pct = allPractices ? Math.round((playerCounts[m.name]||0)/allPractices*100) : 0;
+            return `<div class="card">
+              <b>${m.name}</b><br>
+              <div class="competition-progress-bar"><div class="competition-bar-fill" style="width:${pct}%"></div></div>
+              ${pct}% (${playerCounts[m.name]||0}/${allPractices})
+            </div>`;
+          }).join('') +
+            `<div class="card" style="margin-top:2em;"><h4>Practice Records</h4>
+              ${compPracticeRecords.slice().reverse().map((rec,ri) => `
+                <div>
+                  <b>${rec.date}</b> (${rec.time})<br>
+                  <button class="competition-dropdown-btn" onclick="toggleCompDropdown(${ri})" id="comp-dropdown-btn-${ri}">Show Participants ▼</button>
+                  <div class="competition-dropdown hidden" id="comp-dropdown-${ri}">
+                    ${rec.attendance.length ? rec.attendance.join(", ") : 'None'}
+                  </div>
+                </div>
+              `).join('<hr style="border:0;border-bottom:1px dashed #aaa;">')}
+            </div>`;
+        }
+      }
+      else if (activeCompTab === "comp-music") {
+        el.innerHTML = compPlayers.length ? `
+          <div class="card">
+            <h3>Music Finished</h3>
+            <table style="width:100%;color:gold;">
+              <tr><th>Name</th><th>Music 1</th><th>Music 2</th></tr>
+              ${compPlayers.map((m,i) => {
+                let mf = compMusicFinished.find(x=>x.name===m.name) || {music1:false, music2:false};
+                return `<tr>
+                  <td>${m.name}</td>
+                  <td><input type="checkbox" ${mf.music1?'checked':''} onchange="toggleCompMusic(${i},1)"></td>
+                  <td><input type="checkbox" ${mf.music2?'checked':''} onchange="toggleCompMusic(${i},2)"></td>
+                </tr>`;
+              }).join('')}
+            </table>
+          </div>
+        ` : `<div class="card">Add players first.</div>`;
+      }
+      else if (activeCompTab === "comp-perf") {
+        // Performance bar: red outline (none), orange half (1), gold blink (2)
+        el.innerHTML = compPlayers.length ? `
+          <div class="card">
+            <h3>Performance</h3>
+            ${compPlayers.map(m => {
+              let mf = compMusicFinished.find(x=>x.name===m.name) || {music1:false, music2:false};
+              let bar, barStyle = '', barClass = '';
+              if (mf.music1 && mf.music2) {
+                bar = 100; barClass = "competition-bar-fill blink";
+              } else if (mf.music1 || mf.music2) {
+                bar = 50; barClass = "competition-bar-fill orange";
+              } else {
+                bar = 0; barClass = "competition-bar-fill red-outline";
+              }
+              return `
+                <div style="margin-bottom:0.7em;">
+                  <b>${m.name}</b>
+                  <div class="competition-progress-bar">
+                    <div class="${barClass}" style="width:${bar}%;"></div>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        ` : `<div class="card">Add players first.</div>`;
+      }
+    }
+
+    // ------------ Competition Subtab Actions ------------
+    function addCompPlayer() {
+      let name = document.getElementById("comp-name").value.trim();
+      let instrument = document.getElementById("comp-instrument").value.trim();
+      let contact = document.getElementById("comp-contact").value.trim();
+      let grade = document.getElementById("comp-grade").value;
+      if (!name) { alert("Name required!"); return; }
+      compPlayers.push({name, instrument, contact, grade});
+      saveCompetitionData();
+      activeCompTab = "comp-details";
+      renderCompetitionMain();
+    }
+    function editCompPlayer(i) {
+      let m = compPlayers[i];
+      let name = prompt("Edit Name", m.name) || m.name;
+      let instrument = prompt("Edit Instrument", m.instrument) || m.instrument;
+      let contact = prompt("Edit Contact", m.contact) || m.contact;
+      let grade = prompt("Edit Grade", m.grade) || m.grade;
+      compPlayers[i] = {name, instrument, contact, grade};
+      saveCompetitionData();
+      renderCompetitionMain();
+    }
+    function selectAllCompAttendance() {
+      compPlayers.forEach((_,i) => document.getElementById("comp-att-"+i).checked = true);
+    }
+    function submitCompAttendance() {
+      let date = document.getElementById("comp-practice-date").value;
+      let time = document.getElementById("comp-practice-time").value;
+      if (!date || !time) { alert("Choose date and time!"); return; }
+      let attendance = [];
+      compPlayers.forEach((m,i) => {
+        if (document.getElementById("comp-att-"+i).checked) attendance.push(m.name);
+      });
+      compPracticeRecords.push({date, time, attendance});
+      saveCompetitionData();
+      activeCompTab = "comp-attendpct";
+      renderCompetitionMain();
+    }
+    function toggleCompDropdown(idx) {
+      let el = document.getElementById("comp-dropdown-"+idx);
+      let btn = document.getElementById("comp-dropdown-btn-"+idx);
+      if (el.classList.contains("hidden")) {
+        el.classList.remove("hidden");
+        btn.innerHTML = "Hide Participants ▲";
+      } else {
+        el.classList.add("hidden");
+        btn.innerHTML = "Show Participants ▼";
+      }
+    }
+    function toggleCompMusic(idx, which) {
+      let name = compPlayers[idx].name;
+      let entry = compMusicFinished.find(x=>x.name===name);
+      if (!entry) {
+        entry = {name, music1:false, music2:false};
+        compMusicFinished.push(entry);
+      }
+      if (which===1) entry.music1 = !entry.music1;
+      if (which===2) entry.music2 = !entry.music2;
+      saveCompetitionData();
+      renderCompetitionMain();
+    }
+
+    // ------------ BAND SECTION CODE (unchanged) ------------
     function renderAttendance() {
       const container = document.getElementById("attendance");
       container.innerHTML = "";
@@ -250,7 +672,6 @@
       });
     }
 
-    // --- Player Profiles ---
     function renderProfiles() {
       const box = document.getElementById("player-profiles");
       box.innerHTML = "";
@@ -266,10 +687,8 @@
         </div>`;
       });
     }
-
     function editMember(index) {
       const m = members[index];
-      // Edit all fields
       const newName = prompt("Edit Full Name", m.name);
       if (newName !== null && newName.trim()) m.name = newName.trim();
       const newGrade = prompt("Edit Grade (6-13)", m.grade);
@@ -289,8 +708,6 @@
       renderAttendance();
       renderInstruments();
     }
-
-    // --- Add Member Form ---
     function renderAddMemberForm() {
       const form = document.getElementById("add-member");
       form.innerHTML = `
@@ -322,7 +739,6 @@
         </div>
       `;
     }
-
     function addMember() {
       const member = {
         name: (document.getElementById("first-name").value + " " + document.getElementById("last-name").value).trim(),
@@ -348,8 +764,6 @@
       renderAddEventForm();
       switchTab("attendance");
     }
-
-    // --- Instruments Render ---
     function renderInstruments() {
       const container = document.getElementById("instruments");
       container.innerHTML = "";
@@ -365,8 +779,6 @@
           </div>`;
       });
     }
-
-    // --- Music Render ---
     function renderMusic() {
       const container = document.getElementById("music");
       container.innerHTML = songList.map(song => {
@@ -380,8 +792,6 @@
         `;
       }).join('');
     }
-
-    // --- Events Render ---
     function renderEvents() {
       const container = document.getElementById("events");
       if (!events.length) {
@@ -399,10 +809,7 @@
         </div>
       `).join('');
     }
-
-    // --- Add Event Form ---
     let newEvent = { name: "", date: "", location: "", music: [], notes: "", attendance: [] };
-
     function renderAddEventForm() {
       const container = document.getElementById("add-event");
       newEvent = { name: "", date: "", location: "", music: [], notes: "", attendance: [] };
@@ -422,7 +829,6 @@
         </div>
       `;
     }
-
     function toggleMusic(checkbox) {
       if (checkbox.checked) {
         if (!newEvent.music.includes(checkbox.value)) newEvent.music.push(checkbox.value);
@@ -430,7 +836,6 @@
         newEvent.music = newEvent.music.filter(m => m !== checkbox.value);
       }
     }
-
     function toggleAttendance(checkbox) {
       if (checkbox.checked) {
         if (!newEvent.attendance.includes(checkbox.value)) newEvent.attendance.push(checkbox.value);
@@ -438,7 +843,6 @@
         newEvent.attendance = newEvent.attendance.filter(n => n !== checkbox.value);
       }
     }
-
     function selectAllEventAttendees() {
       members.forEach((_, i) => {
         const cb = document.getElementById("a" + i);
@@ -448,7 +852,6 @@
         }
       });
     }
-
     function addEventProcess() {
       newEvent.name = document.getElementById("event-name").value;
       newEvent.date = document.getElementById("event-date").value;
@@ -458,7 +861,6 @@
         alert("Please provide event name and date.");
         return;
       }
-      // Update attendance counts per member
       members = members.map(m => {
         if (newEvent.attendance.includes(m.name)) {
           m.attended = (m.attended || 0) + 1;
@@ -466,9 +868,7 @@
         m.total = (m.total || 0) + 1;
         return m;
       });
-      // Update music stats
       newEvent.music.forEach(m => musicCount[m] = (musicCount[m] || 0) + 1);
-      // Save event
       events.push({...newEvent, attendance: [...newEvent.attendance]});
       saveData();
       renderAttendance();
@@ -481,8 +881,6 @@
       renderCompetitionForm();
       switchTab("events");
     }
-
-    // --- Competition Attendance ---
     function renderCompetitionForm() {
       const comp = document.getElementById("competition");
       comp.innerHTML = `<div class="card">
@@ -498,11 +896,9 @@
       `;
       renderCompetitionHistory();
     }
-
     function selectAllComp() {
       members.forEach((_, i) => document.getElementById("c" + i).checked = true);
     }
-
     function submitComp() {
       const name = document.getElementById("practice-name").value.trim();
       const date = document.getElementById("practice-date").value;
@@ -515,7 +911,6 @@
       members.forEach((m, i) => {
         if (document.getElementById("c" + i).checked) attendance.push(m.name);
       });
-      // update competition fields for members
       members.forEach((m, i) => {
         m.compTotal = (m.compTotal || 0) + 1;
         if (attendance.includes(m.name)) m.compAttended = (m.compAttended || 0) + 1;
@@ -533,7 +928,6 @@
       renderMusic();
       alert("Competition attendance recorded!");
     }
-
     function renderCompetitionHistory() {
       const history = document.getElementById("comp-history");
       if (!competitions.length) {
@@ -554,13 +948,45 @@
       });
     }
 
-    // --- Initial Data Setup & Render ---
+    // ------------ Backup/Restore ------------
+    function showBackupModal() {
+      document.getElementById('backup-modal-bg').classList.remove('hidden');
+      let data = {
+        members, events, musicCount, competitions,
+        compPlayers, compAttendances, compPerformances, compMusicFinished, compPracticeRecords
+      };
+      document.getElementById('backup-data-area').value = btoa(unescape(encodeURIComponent(JSON.stringify(data))));
+    }
+    function closeBackupModal() {
+      document.getElementById('backup-modal-bg').classList.add('hidden');
+    }
+    function copyBackupData() {
+      let area = document.getElementById('backup-data-area');
+      area.select();
+      area.setSelectionRange(0, 99999);
+      document.execCommand("copy");
+      alert("Backup copied! Paste and save securely.");
+    }
+    // To restore: call restoreBackup('...') from browser console
+    function restoreBackup(str) {
+      try {
+        let data = JSON.parse(decodeURIComponent(escape(atob(str))));
+        members = data.members || [];
+        events = data.events || [];
+        musicCount = data.musicCount || {};
+        competitions = data.competitions || [];
+        compPlayers = data.compPlayers || [];
+        compAttendances = data.compAttendances || [];
+        compPerformances = data.compPerformances || [];
+        compMusicFinished = data.compMusicFinished || [];
+        compPracticeRecords = data.compPracticeRecords || [];
+        saveData();
+        location.reload();
+      } catch (e) { alert("Invalid backup!"); }
+    }
+    // ------------ Initial Load and Render ------------
     function ensureData() {
       loadData();
-      // If fresh (no members) - optionally seed or leave blank
-      if (!members.length) {
-        // Optionally seed with example data here
-      }
     }
     ensureData();
     renderAttendance();
@@ -571,8 +997,8 @@
     renderMusic();
     renderEvents();
     renderAddEventForm();
-
-    // --- Expose for event handlers ---
+    renderCompetitionMain();
+    // ------------ Expose for event handlers ------------
     window.toggleMusic = toggleMusic;
     window.toggleAttendance = toggleAttendance;
     window.selectAllEventAttendees = selectAllEventAttendees;
@@ -580,7 +1006,18 @@
     window.editMember = editMember;
     window.selectAllComp = selectAllComp;
     window.submitComp = submitComp;
-
+    // Competition section
+    window.switchCompTab = switchCompTab;
+    window.addCompPlayer = addCompPlayer;
+    window.editCompPlayer = editCompPlayer;
+    window.selectAllCompAttendance = selectAllCompAttendance;
+    window.submitCompAttendance = submitCompAttendance;
+    window.toggleCompDropdown = toggleCompDropdown;
+    window.toggleCompMusic = toggleCompMusic;
+    window.showBackupModal = showBackupModal;
+    window.closeBackupModal = closeBackupModal;
+    window.copyBackupData = copyBackupData;
+    window.restoreBackup = restoreBackup;
   </script>
 </body>
 </html>
