@@ -420,9 +420,11 @@
     };
 
     const rankOrder = { "Sajon": 1, "Senior": 2, "CPL": 3, "L/CPL": 4, "Cadet": 5 };
+
+    // NOTE: Update songList and all its usages as per your original request if needed
+
     const songList = [
-      "Viruwo", "Marune", "Hela Jatika", "Minisa", "Duke of York",
-      "Irak Payana", "Dakuna Nagenahira", "Shrini"
+      "St. George", "Voice", "Peradiga", "Nelson;s toch", "Srini", "News", "Thunder March", "Lanka Lanka", "Minisa"
     ];
 
     let members = [];
@@ -526,10 +528,10 @@
             <input class="input" id="comp-name" placeholder="Name" autocomplete="off">
             <input class="input" id="comp-instrument" placeholder="Instrument" autocomplete="off">
             <input class="input" id="comp-contact" placeholder="Contact Number" autocomplete="off">
+            <input class="input" id="comp-address" placeholder="Address" autocomplete="off">
             <select class="input" id="comp-grade">
               <option value="">Grade</option>
-              ${[6,7,8,9,10,11,12,13].map(g => `<option>Grade ${g}</option>`).join('')}
-              <option value="After School">After School</option>
+              ${[6,7,8,9,10,11,12,13,"A.School","Other"].map(g => `<option>${g}</option>`).join('')}
             </select>
             <button class="button" onclick="addCompPlayer()">Add</button>
           </div>
@@ -542,6 +544,7 @@
             <button class="competition-details-edit-btn" onclick="editCompPlayer(${i})">Edit</button><br>
             Instrument: ${m.instrument}<br>
             Contact: ${m.contact}<br>
+            Address: ${m.address || ""}<br>
             Grade: ${m.grade}
           </div>`).join('') : `<div class="card">No competition players yet.</div>`;
       }
@@ -598,17 +601,28 @@
         }
       }
       else if (activeCompTab === "comp-music") {
+        // Updated: Show new music columns
+        const music1Choices = ["St.George", "Marune", "Aida", "Hela Jathika"];
+        const music2Choices = ["Voice", "Peradiga", "Scipio", "Viruwo"];
         el.innerHTML = compPlayers.length ? `
           <div class="card">
             <h3>Music Finished</h3>
             <table style="width:100%;color:gold;">
-              <tr><th>Name</th><th>Music 1</th><th>Music 2</th></tr>
+              <tr>
+                <th>Name</th>
+                ${music1Choices.map(m => `<th>${m}</th>`).join('')}
+                ${music2Choices.map(m => `<th>${m}</th>`).join('')}
+              </tr>
               ${compPlayers.map((m,i) => {
-                let mf = compMusicFinished.find(x=>x.name===m.name) || {music1:false, music2:false};
+                let mf = compMusicFinished.find(x=>x.name===m.name) || {};
                 return `<tr>
                   <td>${m.name}</td>
-                  <td><input type="checkbox" ${mf.music1?'checked':''} onchange="toggleCompMusic(${i},1)"></td>
-                  <td><input type="checkbox" ${mf.music2?'checked':''} onchange="toggleCompMusic(${i},2)"></td>
+                  ${music1Choices.map((song, idx) =>
+                    `<td><input type="checkbox" ${mf[`music1_${idx}`]?'checked':''} onchange="toggleCompMusicSong(${i},'music1_${idx}')"></td>`
+                  ).join('')}
+                  ${music2Choices.map((song, idx) =>
+                    `<td><input type="checkbox" ${mf[`music2_${idx}`]?'checked':''} onchange="toggleCompMusicSong(${i},'music2_${idx}')"></td>`
+                  ).join('')}
                 </tr>`;
               }).join('')}
             </table>
@@ -620,15 +634,15 @@
           <div class="card">
             <h3>Performance</h3>
             ${compPlayers.map(m => {
-              let mf = compMusicFinished.find(x=>x.name===m.name) || {music1:false, music2:false};
-              let bar, barClass = '';
-              if (mf.music1 && mf.music2) {
-                bar = 100; barClass = "competition-bar-fill blink";
-              } else if (mf.music1 || mf.music2) {
-                bar = 50; barClass = "competition-bar-fill orange";
-              } else {
-                bar = 0; barClass = "competition-bar-fill red-outline";
-              }
+              let mf = compMusicFinished.find(x=>x.name===m.name) || {};
+              // Count number of checked music
+              let done = Object.values(mf).filter(Boolean).length;
+              let bar = Math.round((done/8)*100);
+              let barClass = bar === 100
+                ? "competition-bar-fill blink"
+                : bar >= 50
+                ? "competition-bar-fill orange"
+                : "competition-bar-fill red-outline";
               return `
                 <div style="margin-bottom:0.7em;">
                   <b>${m.name}</b>
@@ -647,9 +661,13 @@
       let name = document.getElementById("comp-name").value.trim();
       let instrument = document.getElementById("comp-instrument").value.trim();
       let contact = document.getElementById("comp-contact").value.trim();
+      let address = document.getElementById("comp-address").value.trim();
       let grade = document.getElementById("comp-grade").value;
-      if (!name) { alert("Name required!"); return; }
-      compPlayers.push({name, instrument, contact, grade});
+      if (!name || !instrument || !contact || !address || !grade) {
+        alert("All fields are required!");
+        return;
+      }
+      compPlayers.push({name, instrument, contact, address, grade});
       saveCompetitionData();
       activeCompTab = "comp-details";
       renderCompetitionMain();
@@ -659,8 +677,9 @@
       let name = prompt("Edit Name", m.name) || m.name;
       let instrument = prompt("Edit Instrument", m.instrument) || m.instrument;
       let contact = prompt("Edit Contact", m.contact) || m.contact;
+      let address = prompt("Edit Address", m.address) || m.address;
       let grade = prompt("Edit Grade", m.grade) || m.grade;
-      compPlayers[i] = {name, instrument, contact, grade};
+      compPlayers[i] = {name, instrument, contact, address, grade};
       saveCompetitionData();
       renderCompetitionMain();
     }
@@ -691,15 +710,15 @@
         btn.innerHTML = "Show Participants ▼";
       }
     }
-    function toggleCompMusic(idx, which) {
+    // For new comp-music table
+    function toggleCompMusicSong(idx, key) {
       let name = compPlayers[idx].name;
       let entry = compMusicFinished.find(x=>x.name===name);
       if (!entry) {
-        entry = {name, music1:false, music2:false};
+        entry = {name};
         compMusicFinished.push(entry);
       }
-      if (which===1) entry.music1 = !entry.music1;
-      if (which===2) entry.music2 = !entry.music2;
+      entry[key] = !entry[key];
       saveCompetitionData();
       renderCompetitionMain();
     }
@@ -733,9 +752,10 @@
         box.innerHTML += `<div class="card">
           <b>${m.name}</b>
           <button class="edit-btn" onclick="editMember(${i})">Edit</button><br>
-          Grade: ${m.grade}, A.School: ${m.aschool}<br>
+          Grade: ${m.grade}<br>
           Rank: ${m.rank}, Instrument: ${m.instrument}<br>
           Contact: ${m.contact}<br>
+          Parent Contact: ${m.parentContact || ""}<br>
           Address: ${m.address}
         </div>`;
       });
@@ -744,14 +764,14 @@
       const m = members[index];
       const newName = prompt("Edit Full Name", m.name);
       if (newName !== null && newName.trim()) m.name = newName.trim();
-      const newGrade = prompt("Edit Grade (6-13)", m.grade);
+      const newGrade = prompt("Edit Grade (6-13, A.School, Other)", m.grade);
       if (newGrade !== null && newGrade.trim()) m.grade = newGrade.trim();
-      const newASchool = prompt("Edit A.School (A.School/Other)", m.aschool);
-      if (newASchool !== null && newASchool.trim()) m.aschool = newASchool.trim();
       const newRank = prompt("Edit Rank (Cadet/L/CPL/CPL/Senior/Sajon)", m.rank);
       if (newRank !== null && newRank.trim()) m.rank = newRank.trim();
       const newContact = prompt("Edit Contact Number", m.contact);
       if (newContact !== null && newContact.trim()) m.contact = newContact.trim();
+      const newParentContact = prompt("Edit Parent's Contact Number", m.parentContact || "");
+      if (newParentContact !== null && newParentContact.trim()) m.parentContact = newParentContact.trim();
       const newAddress = prompt("Edit Address", m.address);
       if (newAddress !== null && newAddress.trim()) m.address = newAddress.trim();
       const newInstrument = prompt("Edit Instrument", m.instrument);
@@ -761,6 +781,7 @@
       renderAttendance();
       renderInstruments();
     }
+    // --- UPDATED: Add Member Form ---
     function renderAddMemberForm() {
       const form = document.getElementById("add-member");
       form.innerHTML = `
@@ -770,11 +791,7 @@
           <input id="last-name" class="input" placeholder="Last Name" autocomplete="off">
           <select id="grade" class="input">
             <option value="">Grade</option>
-            ${[6,7,8,9,10,11,12,13].map(g => `<option>${g}</option>`).join('')}
-          </select>
-          <select id="aschool" class="input">
-            <option>A.School</option>
-            <option>Other</option>
+            ${[6,7,8,9,10,11,12,13,"A.School","Other"].map(g => `<option>${g}</option>`).join('')}
           </select>
           <select id="rank" class="input">
             <option>Cadet</option>
@@ -784,6 +801,7 @@
             <option>Sajon</option>
           </select>
           <input id="contact" class="input" placeholder="Contact Number" autocomplete="off">
+          <input id="parent-contact" class="input" placeholder="Parent's Contact Number" autocomplete="off">
           <input id="address" class="input" placeholder="Address" autocomplete="off">
           <select id="instrument" class="input">
             ${Object.keys(instrumentSlots).map(i => `<option>${i}</option>`).join('')}
@@ -796,9 +814,9 @@
       const member = {
         name: (document.getElementById("first-name").value + " " + document.getElementById("last-name").value).trim(),
         grade: document.getElementById("grade").value,
-        aschool: document.getElementById("aschool").value,
         rank: document.getElementById("rank").value,
         contact: document.getElementById("contact").value,
+        parentContact: document.getElementById("parent-contact").value,
         address: document.getElementById("address").value,
         instrument: document.getElementById("instrument").value,
         attended: 0, total: 0, compAttended: 0, compTotal: 0
@@ -1114,7 +1132,7 @@
     window.selectAllCompAttendance = selectAllCompAttendance;
     window.submitCompAttendance = submitCompAttendance;
     window.toggleCompDropdown = toggleCompDropdown;
-    window.toggleCompMusic = toggleCompMusic;
+    window.toggleCompMusicSong = toggleCompMusicSong;
     window.showBackupModal = showBackupModal;
     window.closeBackupModal = closeBackupModal;
     window.copyBackupData = copyBackupData;
